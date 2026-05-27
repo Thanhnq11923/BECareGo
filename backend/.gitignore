@@ -1,0 +1,5 @@
+
+//dùng để chặn file ko dc push lên git
+
+node_modules/
+.DS_Store
