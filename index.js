@@ -17,6 +17,7 @@ import companionRouter from "./src/routes/companion.routes.js";
 import elderRouter from "./src/routes/elder.routes.js";
 import serviceRouter from "./src/routes/service.routes.js";
 import uploadRouter from "./src/routes/upload.routes.js";
+import withdrawalRouter from "./src/routes/withdrawal.routes.js";
 import { setupLocationSocket } from "./src/socket/location.socket.js";
 
 // import swagger
@@ -30,8 +31,8 @@ dotenv.config();
 await databaseConnection();
 // ---------------------------------------------
 app.use(cookieParser());
-app.use(express.json()); // chuyển đổi dữ liệu từ client gửi lên thành định dạng json
-app.use(bodyParser.urlencoded({ extended: true })); // xử lý dữ liệu form gửi lên
+app.use(express.json({ limit: "8mb" })); // chuyển đổi dữ liệu từ client gửi lên thành định dạng json
+app.use(bodyParser.urlencoded({ extended: true, limit: "8mb" })); // xử lý dữ liệu form gửi lên
 
 app.use(
   cors({
@@ -56,6 +57,7 @@ app.use("/api/elders", elderRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/withdrawals", withdrawalRouter);
 
 const io = new Server(server, {
   cors: {
