@@ -9,9 +9,12 @@ const createTransporter = () => {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
     secure: process.env.SMTP_SECURE === "true",
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
     auth: {
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      pass: process.env.SMTP_PASS.replace(/\s/g, ""),
     },
   });
 };
@@ -24,21 +27,33 @@ export const sendOtpEmail = async ({ to, name, otp }) => {
     return;
   }
 
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to,
-    subject: "CareGo - Ma xac thuc email",
-    text: `Xin chao ${name}, ma OTP CareGo cua ban la ${otp}. Ma co hieu luc trong 10 phut.`,
-    html: `
-      <div style="font-family:Arial,sans-serif;line-height:1.6">
-        <h2>CareGo - Xac thuc email</h2>
-        <p>Xin chao ${name},</p>
-        <p>Ma OTP cua ban la:</p>
-        <p style="font-size:28px;font-weight:700;letter-spacing:6px">${otp}</p>
-        <p>Ma co hieu luc trong 10 phut.</p>
-      </div>
-    `,
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to,
+      subject: "CareGo - Ma xac thuc email",
+      text: `Xin chao ${name}, ma OTP CareGo cua ban la ${otp}. Ma co hieu luc trong 10 phut.`,
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6">
+          <h2>CareGo - Xac thuc email</h2>
+          <p>Xin chao ${name},</p>
+          <p>Ma OTP cua ban la:</p>
+          <p style="font-size:28px;font-weight:700;letter-spacing:6px">${otp}</p>
+          <p>Ma co hieu luc trong 10 phut.</p>
+        </div>
+      `,
+    });
+    console.log(`[OTP EMAIL SENT] ${to}: ${info.messageId}`);
+  } catch (error) {
+    console.error("[OTP EMAIL FAILED]", {
+      to,
+      code: error.code,
+      command: error.command,
+      responseCode: error.responseCode,
+      message: error.message,
+    });
+    throw error;
+  }
 };
 
 export const sendPasswordResetEmail = async ({ to, name, resetUrl }) => {
