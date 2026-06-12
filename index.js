@@ -31,7 +31,7 @@ import { setupSwagger } from "./src/config/swagger.js";
 // tạo ứng dụng express
 const app = express();
 const server = createServer(app);
-const port = Number(process.env.PORT || 3000);
+const port = 3000;
 dotenv.config();
 // --------------connect to mongodb--------------
 await databaseConnection();
@@ -68,19 +68,6 @@ app.use("/api/upload", uploadRouter);
 app.use("/api/withdrawals", withdrawalRouter);
 app.use("/api/support", supportRouter);
 
-app.get("/api/health", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    environment: process.env.NODE_ENV || "development",
-    smtpConfigured: Boolean(
-      process.env.SMTP_HOST &&
-        process.env.SMTP_USER &&
-        process.env.SMTP_PASS,
-    ),
-    frontendConfigured: Boolean(process.env.FRONTEND_URL),
-  });
-});
-
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -94,7 +81,7 @@ setupSupportSocket(io);
 setupBookingChatSocket(io);
 
 server.listen(port, () => {
-  console.log(`CareGo API listening on port ${port}`);
+  console.log(`Example app listening on port ${port}`, "http://localhost:3000");
 });
 
 // mongodb+srv://thanhnqse172335_db_user:NguyenQuangThanh@cluster0.irndqwy.mongodb.net/?appName=Cluster0
